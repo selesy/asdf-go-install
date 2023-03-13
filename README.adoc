@@ -1,0 +1,18 @@
+== asdf-go-install
+
+Provides an `asdf` plugin to version Go tools installed using `go install`.
+
+=== Usage
+
+Install the `asdf-go-install` plugin by running the following command:
+
+----
+asdf plugin add <name> https://github.com/selesy/asdf-go-install#<url>
+----
+
+Where:
+
+* name is the name of the tool that you want to install via `asdf`.
+
+* url is the URL of the package you want to install via `go install` - this
+  should include the version specifier.
