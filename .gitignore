@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/go,premake-gmake
-# Edit at https://www.toptal.com/developers/gitignore?templates=go,premake-gmake
+# Created by https://www.toptal.com/developers/gitignore/api/go
+# Edit at https://www.toptal.com/developers/gitignore?templates=go
 
 ### Go ###
 # If you prefer the allow list template instead of the deny list, see community template:
@@ -24,9 +24,4 @@
 # Go workspace file
 go.work
 
-### premake-gmake ###
-Makefile
-*.make
-obj/
-
-# End of https://www.toptal.com/developers/gitignore/api/go,premake-gmake
+# End of https://www.toptal.com/developers/gitignore/api/go
