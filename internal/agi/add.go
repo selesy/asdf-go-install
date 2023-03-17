@@ -11,12 +11,16 @@ import (
 func (p *plugin) Add(name, url string) ExitCode {
 	baseDir, ok := os.LookupEnv("ASDF_DIR")
 	if !ok {
+		p.env.log.Error("Missing the ASDF_DIR environment variable")
+
 		return ErrExitCodeEnvVarFailure
 	}
 
 	pluginDir := filepath.Join(baseDir, "name")
 
 	if err := makePluginDir(pluginDir); err != nil {
+		p.env.log.Error(err)
+
 		return ErrExitCodeEnvVarFailure
 	}
 
