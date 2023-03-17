@@ -1,1 +1,1 @@
-asdf-go-install
+bin/asdf-go-install
