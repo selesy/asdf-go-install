@@ -18,7 +18,7 @@ build: generate
 	ln -s asdf-go-install bin/download || true
 	ln -s asdf-go-install bin/install || true
 	ln -s asdf-go-install bin/list-all || true
-	ln -s bin/asdf-go-install lib/commands/command-add.bash || true
+	ln -s ../../bin/asdf-go-install lib/commands/command-add.bash || true
 .PHONY: build
 
 generate:
