@@ -225,6 +225,8 @@ func (e *Env) Execute(plugin Plugin, args []string) ExitCode {
 		"list-all": plugin.ListAll,
 	}[fileName]
 	if !ok {
+		e.log.Error(ErrExitCodeUnknownCommand, " ", fileName)
+
 		return ErrExitCodeUnknownCommand
 	}
 
