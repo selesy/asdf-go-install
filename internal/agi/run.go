@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -186,6 +187,18 @@ func NewEnv(opts ...EnvOption) *Env {
 // the associated plugin function with in the provided environment.
 func (e *Env) Execute(plugin Plugin, args []string) ExitCode {
 	e.log.Trace("Execute()")
+
+	if e.log.Level == logrus.DebugLevel {
+		for i, v := range args {
+			e.log.Debugf("Argument (%d): %s", i, v)
+		}
+
+		for _, v := range os.Environ() {
+			if strings.HasPrefix(v, "ASDF") {
+				e.log.Debug("Environment variable: ", v)
+			}
+		}
+	}
 
 	if plugin == nil {
 		panic(ErrPanicNilPlugin)
