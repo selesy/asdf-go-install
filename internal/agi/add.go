@@ -62,7 +62,9 @@ func (p *plugin) Add(args []string) ExitCode {
 	); err != nil {
 		p.env.log.Error("failed to write symlink - %w", err)
 
+		return ErrExitCodeCommandFailure
 	}
+
 	// TODO: Write README/help file
 	// TODO: Write config file.
 
@@ -75,7 +77,7 @@ func mkDirIfNotExist(name string) error {
 		return fmt.Errorf("%w - %w - %s", ErrExitCodeEnvVarFailure, err, name)
 	}
 
-	if fi.IsDir() {
+	if err == nil && fi.IsDir() {
 		return fmt.Errorf("%w - exists but is not a directory - %s", ErrExitCodeEnvVarFailure, name)
 	}
 
