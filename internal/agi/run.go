@@ -91,7 +91,7 @@ const (
 	MsgErrNoCommand = "the plugin executable should be called with the plugin function name"
 
 	// MsgErrNotImplemented is the message for ErrExitCodeNotImplemented.
-	MsgErrNotImplemented = "the called plugin function  is not implemented"
+	MsgErrNotImplemented = "the called plugin function is not implemented"
 
 	// MsgErrUnknownCommand is the message for ErrExitCodeUnknownCommand.
 	MsgErrUnknownCommand = "the called plugin function is not known"

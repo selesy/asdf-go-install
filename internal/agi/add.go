@@ -40,14 +40,14 @@ func (p *plugin) Add(args []string) ExitCode {
 	p.env.log.Debug("ASDF directory: ", baseDir)
 
 	pluginDir := filepath.Join(baseDir, "plugins", name)
-	if err := mkDirIfNotExist(pluginDir); err != nil {
+	if err := p.mkDirIfNotExist(pluginDir); err != nil {
 		p.env.log.Error(err)
 
-		return ErrExitCodeEnvVarFailure
+		return ErrExitCodeCommandFailure
 	}
 
 	binDir := filepath.Join(pluginDir, "bin")
-	if err := mkDirIfNotExist(binDir); err != nil {
+	if err := p.mkDirIfNotExist(binDir); err != nil {
 		p.env.log.Error(err)
 
 		return ErrExitCodeCommandFailure
@@ -70,8 +70,8 @@ func (p *plugin) Add(args []string) ExitCode {
 	return ErrExitCodeNotImplemented
 }
 
-func mkDirIfNotExist(name string) error {
-	const directoryPermissions = 0o777
+func (p *plugin) mkDirIfNotExist(name string) error {
+	const directoryPermissions = 0o775
 
 	fi, err := os.Stat(name)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
@@ -86,7 +86,9 @@ func mkDirIfNotExist(name string) error {
 		return fmt.Errorf("%w - failed to create directory - %s", ErrExitCodeEnvVarFailure, name)
 	}
 
-	return ErrExitCodeNotImplemented
+	p.env.log.Debugf("created directory - %s", name)
+
+	return nil
 }
 
 func (p plugin) makeSymLinks(links ...string) error {
