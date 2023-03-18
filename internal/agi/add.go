@@ -1,6 +1,7 @@
 package agi
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -8,8 +9,16 @@ import (
 	"path/filepath"
 )
 
+type Config struct {
+	Name    string `json:"name"`
+	Package string `json:"package"`
+}
+
 func (p *plugin) Add(args []string) ExitCode {
-	const expectedArgsCount = 3
+	const (
+		configFilePermissions = 0o555
+		expectedArgsCount     = 3
+	)
 
 	var (
 		name = args[1]
@@ -68,7 +77,28 @@ func (p *plugin) Add(args []string) ExitCode {
 	}
 
 	// TODO: Write README/help file
+
 	// TODO: Write config file.
+	cfg := &Config{
+		Name:    name,
+		Package: pkg,
+	}
+
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		p.env.log.Error("failed to marshal Config to JSON")
+
+		return ErrExitCodeCommandFailure
+	}
+
+	configPath := filepath.Join(installDir, ".config")
+	if err := os.WriteFile(configPath, data, configFilePermissions); err != nil {
+		p.env.log.Error("failed to write .config file")
+
+		return ErrExitCodeCommandFailure
+	}
+
+	p.env.log.Debug("Wrote config file to ", configPath)
 
 	return ErrExitCodeNotImplemented
 }
