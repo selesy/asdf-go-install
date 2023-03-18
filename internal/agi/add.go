@@ -40,14 +40,14 @@ func (p *plugin) Add(args []string) ExitCode {
 	p.env.log.Debug("ASDF directory: ", baseDir)
 
 	pluginDir := filepath.Join(baseDir, "plugins", name)
-	if err := p.mkDirIfNotExist(pluginDir); err != nil {
+	if err := p.makeDirectoryIfNotExists(pluginDir); err != nil {
 		p.env.log.Error(err)
 
 		return ErrExitCodeCommandFailure
 	}
 
 	binDir := filepath.Join(pluginDir, "bin")
-	if err := p.mkDirIfNotExist(binDir); err != nil {
+	if err := p.makeDirectoryIfNotExists(binDir); err != nil {
 		p.env.log.Error(err)
 
 		return ErrExitCodeCommandFailure
@@ -70,7 +70,7 @@ func (p *plugin) Add(args []string) ExitCode {
 	return ErrExitCodeNotImplemented
 }
 
-func (p *plugin) mkDirIfNotExist(name string) error {
+func (p *plugin) makeDirectoryIfNotExists(name string) error {
 	const directoryPermissions = 0o775
 
 	fi, err := os.Stat(name)
@@ -78,12 +78,12 @@ func (p *plugin) mkDirIfNotExist(name string) error {
 		return fmt.Errorf("%w - %w - %s", ErrExitCodeEnvVarFailure, err, name)
 	}
 
-	if err == nil && fi.IsDir() {
-		return fmt.Errorf("%w - exists but is not a directory - %s", ErrExitCodeEnvVarFailure, name)
+	if err == nil && !fi.IsDir() {
+		return fmt.Errorf("%w - exists but is not a directory - %s", ErrExitCodeCommandFailure, name)
 	}
 
 	if err := os.Mkdir(name, directoryPermissions); err != nil {
-		return fmt.Errorf("%w - failed to create directory - %s", ErrExitCodeEnvVarFailure, name)
+		return fmt.Errorf("%w - failed to create directory - %s", ErrExitCodeCommandFailure, name)
 	}
 
 	p.env.log.Debugf("created directory - %s", name)

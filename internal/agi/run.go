@@ -233,8 +233,6 @@ func (e *Env) Execute(plugin Plugin, args []string) ExitCode {
 		panic(ErrPanicNilPlugin)
 	}
 
-	e.log.Debug("Arguments: ", args)
-
 	if len(args) < 1 {
 		return ErrExitCodeNoCommand
 	}

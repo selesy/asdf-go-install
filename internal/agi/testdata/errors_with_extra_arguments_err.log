@@ -2,5 +2,4 @@
 {"level":"debug","msg":"Argument (1): argument","time":"Timestamp"}
 {"level":"debug","msg":"Environment variable: ASDF_DIR=/home/smoyer1/.asdf","time":"Timestamp"}
 {"level":"debug","msg":"Environment variable: ASDF_DEBUG=","time":"Timestamp"}
-{"level":"debug","msg":"Arguments: [install argument]","time":"Timestamp"}
 {"level":"debug","msg":"Executable name: install","time":"Timestamp"}

@@ -1,6 +1,5 @@
 {"level":"debug","msg":"Argument (0): unknown","time":"Timestamp"}
 {"level":"debug","msg":"Environment variable: ASDF_DIR=/home/smoyer1/.asdf","time":"Timestamp"}
 {"level":"debug","msg":"Environment variable: ASDF_DEBUG=","time":"Timestamp"}
-{"level":"debug","msg":"Arguments: [unknown]","time":"Timestamp"}
 {"level":"debug","msg":"Executable name: unknown","time":"Timestamp"}
 {"level":"error","msg":"the called plugin function is not known - unknown","time":"Timestamp"}
