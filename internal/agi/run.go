@@ -47,6 +47,14 @@ const (
 	// arguments were included on the command line.
 	ErrExitCodeFoundArguments
 
+	// ErrExitCodeInvalidArgument is an ExitCodeError that indicates one
+	// of the command's arguments is invalid
+	ErrExitCodeInvalidArgument
+
+	// ErrWrongNumberOfArguments is an ExitCodeError that indicates the
+	// wrong number of arguments was found.
+	ErrExitCodeBadArgumentCount
+
 	// ErrExitCodeUnknownCommand is an ExitCodeError that indicates an
 	// unknonwn command was parsed from the arguments.
 	ErrExitCodeUnknownCommand
@@ -57,14 +65,27 @@ const (
 	//
 	// See https://asdf-vm.com/plugins/create.html#environment-variables
 	ErrExitCodeEnvVarFailure
+
+	// ErrExitCodeCommandFailure is an ExitCodeError that indicates that
+	// a problem occurred while running a plugin command.
+	ErrExitCodeCommandFailure
 )
 
 const (
+	// MsgErrBadArgumentCount is the message for ErrExitCodeBadArgumentCount.
+	MsgErrBadArgumentCount = "found the wrong number of arguments"
+
+	// MsgErrCommandFailure is the message for ErrExitCodeCommandFailure.
+	MsgErrCommandFailure = "failure while executing plugin command"
+
 	// MsgErrEnvVarParseFailed is the message for ErrExitCodeEnvVarFailure.
 	MsgErrEnvVarParseFailed = "parsing the envvars for the called plugin function failed"
 
 	// MsgErrFoundArgument is the message for ErrExitCodeFoundArguments.
 	MsgErrFoundArgument = "the plugin executable should be called with no additional arguments"
+
+	// MsgErrInvalidArgument is the message for ErrExitCodeInvalidArgument.
+	MsgErrInvalidArgument = "an invalid argument was found"
 
 	// MsgErrNoCommand is the message for ErrExitCodeNoCommand.
 	MsgErrNoCommand = "the plugin executable should be called with the plugin function name"
@@ -96,19 +117,26 @@ func (e ExitCodeError) Error() string {
 	return msg
 }
 
-// PluginFunc is the signature of all Plugin functions which takes no
-// arguments and returns an ExitCode.  All Plugin functions match this
-// signature - instead of arguments, each command retrieves its input
-// paraameters from environment variables.
-type PluginFunc func() ExitCode
+type (
+	ExtensionFunc func([]string) ExitCode
+	// PluginFunc is the signature of all Plugin functions which takes no
+	// arguments and returns an ExitCode.  All Plugin functions match this
+	// signature - instead of arguments, each command retrieves its input
+	// paraameters from environment variables.
+	PluginFunc func() ExitCode
+)
 
-type pluginFunc func(Plugin) ExitCode
+type (
+	extensionFunc func(Plugin, []string) ExitCode
+	pluginFunc    func(Plugin) ExitCode
+)
 
 var (
-	_ pluginFunc = Plugin.Download
-	_ pluginFunc = Plugin.HelpOverview
-	_ pluginFunc = Plugin.Install
-	_ pluginFunc = Plugin.ListAll
+	_ pluginFunc    = Plugin.Download
+	_ pluginFunc    = Plugin.HelpOverview
+	_ pluginFunc    = Plugin.Install
+	_ pluginFunc    = Plugin.ListAll
+	_ extensionFunc = Plugin.Add
 )
 
 // Plugin implements the functions required to implement an asdf plugin.
@@ -117,6 +145,7 @@ type Plugin interface {
 	HelpOverview() ExitCode
 	Install() ExitCode
 	ListAll() ExitCode
+	Add([]string) ExitCode
 }
 
 // EnvOption is a function that alters the Env passed as an argument.
@@ -210,22 +239,19 @@ func (e *Env) Execute(plugin Plugin, args []string) ExitCode {
 		return ErrExitCodeNoCommand
 	}
 
-	if len(args) > 1 {
-		return ErrExitCodeFoundArguments
-	}
-
 	_, fileName := filepath.Split(args[0])
 
 	e.log.Debug("Executable name: ", fileName)
 
 	fn, ok := map[string]PluginFunc{ //nolint:varnamelen
-		"download": plugin.Download,
-		"help":     plugin.HelpOverview,
-		"install":  plugin.Install,
-		"list-all": plugin.ListAll,
+		"download":         verifyNoArguments(plugin.Download, args),
+		"help":             verifyNoArguments(plugin.HelpOverview, args),
+		"install":          verifyNoArguments(plugin.Install, args),
+		"list-all":         verifyNoArguments(plugin.ListAll, args),
+		"command-add.bash": func() ExitCode { return plugin.Add(args) },
 	}[fileName]
 	if !ok {
-		e.log.Error(ErrExitCodeUnknownCommand, " ", fileName)
+		e.log.Error(ErrExitCodeUnknownCommand, " - ", fileName)
 
 		return ErrExitCodeUnknownCommand
 	}
@@ -255,4 +281,14 @@ func Main() int {
 // See https://asdf-vm.com/plugins/create.html#bin-help-scripts
 func (p *plugin) HelpOverview() ExitCode {
 	return ErrExitCodeNotImplemented
+}
+
+func verifyNoArguments(fn PluginFunc, args []string) PluginFunc {
+	return func() ExitCode {
+		if len(args) > 1 {
+			return ErrExitCodeFoundArguments
+		}
+
+		return fn()
+	}
 }
