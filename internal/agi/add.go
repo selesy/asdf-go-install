@@ -58,9 +58,9 @@ func (p *plugin) Add(args []string) ExitCode {
 	// TODO: Write symlinks for list-all, download, install and help
 	if err := p.makeSymLinks(
 		pluginDir,
-		filepath.Join(installDir, "bin", "download"),
-		filepath.Join(installDir, "bin", "install"),
-		filepath.Join(installDir, "bin", "list-all"),
+		filepath.Join(binDir, "download"),
+		filepath.Join(binDir, "install"),
+		filepath.Join(binDir, "list-all"),
 	); err != nil {
 		p.env.log.Error("failed to write symlink - %w", err)
 
