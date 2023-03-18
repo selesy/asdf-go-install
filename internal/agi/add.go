@@ -55,9 +55,10 @@ func (p *plugin) Add(args []string) ExitCode {
 
 	// TODO: Write symlinks for list-all, download, install and help
 	if err := p.makeSymLinks(
-		filepath.Join("..", "..", name, "bin", "download"),
-		filepath.Join("..", "..", name, "bin", "install"),
-		filepath.Join("..", "..", name, "bin", "list-all"),
+		pluginDir,
+		filepath.Join(pluginDir, name, "bin", "download"),
+		filepath.Join(pluginDir, name, "bin", "install"),
+		filepath.Join(pluginDir, name, "bin", "list-all"),
 	); err != nil {
 		p.env.log.Error("failed to write symlink - %w", err)
 
@@ -97,11 +98,15 @@ func (p *plugin) makeDirectoryIfNotExists(name string) error {
 	return nil
 }
 
-func (p plugin) makeSymLinks(links ...string) error {
+func (p plugin) makeSymLinks(asdfDir string, links ...string) error {
+	target := filepath.Join(asdfDir, "go-install", "bin", "asdf-go-install")
+
 	for _, link := range links {
-		if err := os.Symlink("../../go-install/bin/asdf-go-install", link); err != nil {
+		if err := os.Symlink(target, link); err != nil {
 			return err
 		}
+
+		p.env.log.Debugf("created symlink - %s", link)
 	}
 
 	return nil
