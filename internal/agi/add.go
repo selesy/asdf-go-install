@@ -82,6 +82,12 @@ func (p *plugin) makeDirectoryIfNotExists(name string) error {
 		return fmt.Errorf("%w - exists but is not a directory - %s", ErrExitCodeCommandFailure, name)
 	}
 
+	if err == nil && fi.IsDir() {
+		p.env.log.Debug("directory already exists - skipping ", name)
+
+		return nil
+	}
+
 	if err := os.Mkdir(name, directoryPermissions); err != nil {
 		return fmt.Errorf("%w - failed to create directory - %s", ErrExitCodeCommandFailure, name)
 	}
