@@ -30,23 +30,25 @@ func (p *plugin) Add(args []string) ExitCode {
 		return ErrExitCodeInvalidArgument
 	}
 
-	baseDir, ok := os.LookupEnv("ASDF_DIR")
+	asdfDir, ok := os.LookupEnv("ASDF_DIR")
 	if !ok {
 		p.env.log.Error("Missing the ASDF_DIR environment variable")
 
 		return ErrExitCodeEnvVarFailure
 	}
 
-	p.env.log.Debug("ASDF directory: ", baseDir)
+	p.env.log.Debug("ASDF directory: ", asdfDir)
 
-	pluginDir := filepath.Join(baseDir, "plugins", name)
-	if err := p.makeDirectoryIfNotExists(pluginDir); err != nil {
+	pluginDir := filepath.Join(asdfDir, "plugins")
+
+	installDir := filepath.Join(pluginDir, name)
+	if err := p.makeDirectoryIfNotExists(installDir); err != nil {
 		p.env.log.Error(err)
 
 		return ErrExitCodeCommandFailure
 	}
 
-	binDir := filepath.Join(pluginDir, "bin")
+	binDir := filepath.Join(installDir, "bin")
 	if err := p.makeDirectoryIfNotExists(binDir); err != nil {
 		p.env.log.Error(err)
 
@@ -56,9 +58,9 @@ func (p *plugin) Add(args []string) ExitCode {
 	// TODO: Write symlinks for list-all, download, install and help
 	if err := p.makeSymLinks(
 		pluginDir,
-		filepath.Join(pluginDir, name, "bin", "download"),
-		filepath.Join(pluginDir, name, "bin", "install"),
-		filepath.Join(pluginDir, name, "bin", "list-all"),
+		filepath.Join(installDir, name, "bin", "download"),
+		filepath.Join(installDir, name, "bin", "install"),
+		filepath.Join(installDir, name, "bin", "list-all"),
 	); err != nil {
 		p.env.log.Error("failed to write symlink - %w", err)
 
