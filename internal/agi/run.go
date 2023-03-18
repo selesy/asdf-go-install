@@ -218,6 +218,15 @@ func (e *Env) Execute(plugin Plugin, args []string) ExitCode {
 	e.log.Trace("Execute()")
 
 	if e.log.Level == logrus.DebugLevel {
+		wd, err := os.Getwd()
+		if err != nil {
+			e.log.Error("failed to retrieve current working directory")
+
+			return ErrExitCodeEnvVarFailure
+		}
+
+		e.log.Debug("Current working directory: ", wd)
+
 		for i, v := range args {
 			e.log.Debugf("Argument (%d): %s", i, v)
 		}
