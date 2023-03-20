@@ -97,7 +97,7 @@ func (p *plugin) Add(args []string) ExitCode {
 
 	configPath := filepath.Join(installDir, ".config")
 	if err := os.WriteFile(configPath, data, configFilePermissions); err != nil {
-		p.env.log.Error("failed to write .config file")
+		p.env.log.Errorf("failed to write .config file - %s", err)
 
 		return ErrExitCodeCommandFailure
 	}
@@ -143,13 +143,17 @@ func (p *plugin) makeSymLinks(trgtDir string, links ...string) error {
 			return fmt.Errorf("%w - %w - failed to create symlink %s", ErrExitCodeCommandFailure, err, trgt)
 		}
 
+		if err == nil {
+			p.env.log.Info("created symlink ", link)
+		}
+
 		check, err := filepath.EvalSymlinks(link)
 		if err != nil {
 			return fmt.Errorf("%w - %w - failed to check existing symlink - %s", ErrExitCodeCommandFailure, err, link)
 		}
 
 		if check != trgt {
-			return fmt.Errorf("%w - existing symlink already exists but does no equal target - %s != %s", ErrExitCodeCommandFailure, link, trgt)
+			return fmt.Errorf("%w - existing symlink already exists but does not equal target - %s != %s", ErrExitCodeCommandFailure, link, trgt)
 		}
 
 		p.env.log.Info("symlink already exists - skipping ", trgt)
