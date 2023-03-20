@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Config struct {
@@ -20,18 +21,20 @@ func (p *plugin) Add(args []string) ExitCode {
 		expectedArgsCount     = 3
 	)
 
-	var (
-		name = args[1]
-		pkg  = args[2]
-	)
-
 	if len(args) != expectedArgsCount {
 		p.env.log.Error("Expected 2 arguments")
 
 		return ErrExitCodeBadArgumentCount
 	}
 
+	var (
+		cmd  = args[0]
+		name = args[1]
+		pkg  = args[2]
+	)
+
 	// TODO: verify plugin name
+	// TODO: verify plugin url is a Go package main
 
 	if _, err := url.Parse(pkg); err != nil {
 		p.env.log.Error("url must be valid Go package")
@@ -65,8 +68,9 @@ func (p *plugin) Add(args []string) ExitCode {
 	}
 
 	// TODO: Write symlinks for list-all, download, install and help
+	trgtDir := strings.TrimSuffix(cmd, filepath.Join("lib", "commands", "command-add.bash"))
 	if err := p.makeSymLinks(
-		pluginDir,
+		trgtDir,
 		filepath.Join(binDir, "download"),
 		filepath.Join(binDir, "install"),
 		filepath.Join(binDir, "list-all"),
@@ -108,7 +112,7 @@ func (p *plugin) makeDirectoryIfNotExists(name string) error {
 
 	fi, err := os.Stat(name)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return fmt.Errorf("%w - %w - %s", ErrExitCodeEnvVarFailure, err, name)
+		return fmt.Errorf("%w - %w - %s", ErrExitCodeCommandFailure, err, name)
 	}
 
 	if err == nil && !fi.IsDir() {
@@ -130,15 +134,25 @@ func (p *plugin) makeDirectoryIfNotExists(name string) error {
 	return nil
 }
 
-func (p plugin) makeSymLinks(asdfDir string, links ...string) error {
-	target := filepath.Join(asdfDir, "go-install", "bin", "asdf-go-install")
+func (p *plugin) makeSymLinks(trgtDir string, links ...string) error {
+	trgt := filepath.Join(trgtDir, "bin", "asdf-go-install")
 
 	for _, link := range links {
-		if err := os.Symlink(target, link); err != nil {
-			return err
+		err := os.Symlink(trgt, link)
+		if err != nil && !errors.Is(err, os.ErrExist) {
+			return fmt.Errorf("%w - %w - failed to create symlink %s", ErrExitCodeCommandFailure, err, trgt)
 		}
 
-		p.env.log.Debugf("created symlink - %s", link)
+		check, err := filepath.EvalSymlinks(link)
+		if err != nil {
+			return fmt.Errorf("%w - %w - failed to check existing symlink - %s", ErrExitCodeCommandFailure, err, link)
+		}
+
+		if check != trgt {
+			return fmt.Errorf("%w - existing symlink already exists but does no equal target - %s != %s", ErrExitCodeCommandFailure, link, trgt)
+		}
+
+		p.env.log.Info("symlink already exists - skipping ", trgt)
 	}
 
 	return nil
