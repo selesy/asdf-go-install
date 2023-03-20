@@ -17,7 +17,7 @@ type Config struct {
 
 func (p *plugin) Add(args []string) ExitCode {
 	const (
-		configFilePermissions = 0o555
+		configFilePermissions = 0o775
 		expectedArgsCount     = 3
 	)
 
