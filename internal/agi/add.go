@@ -1,7 +1,6 @@
 package agi
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -10,15 +9,9 @@ import (
 	"strings"
 )
 
-type Config struct {
-	Name    string `json:"name"`
-	Package string `json:"package"`
-}
-
 func (p *plugin) Add(args []string) ExitCode {
 	const (
-		configFilePermissions = 0o775
-		expectedArgsCount     = 3
+		expectedArgsCount = 3
 	)
 
 	if len(args) != expectedArgsCount {
@@ -88,23 +81,14 @@ func (p *plugin) Add(args []string) ExitCode {
 		Package: pkg,
 	}
 
-	data, err := json.Marshal(cfg)
+	err := cfg.Write(installDir)
 	if err != nil {
-		p.env.log.Error("failed to marshal Config to JSON")
-
 		return ErrExitCodeCommandFailure
 	}
 
-	configPath := filepath.Join(installDir, ".config")
-	if err := os.WriteFile(configPath, data, configFilePermissions); err != nil {
-		p.env.log.Errorf("failed to write .config file - %s", err)
+	p.env.log.Debug("Wrote config file to ", filepath.Join(installDir, ConfigFilename))
 
-		return ErrExitCodeCommandFailure
-	}
-
-	p.env.log.Debug("Wrote config file to ", configPath)
-
-	return ErrExitCodeNotImplemented
+	return ExitCodeOK
 }
 
 func (p *plugin) makeDirectoryIfNotExists(name string) error {
