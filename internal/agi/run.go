@@ -48,7 +48,7 @@ const (
 	ErrExitCodeFoundArguments
 
 	// ErrExitCodeInvalidArgument is an ExitCodeError that indicates one
-	// of the command's arguments is invalid
+	// of the command's arguments is invalid.
 	ErrExitCodeInvalidArgument
 
 	// ErrWrongNumberOfArguments is an ExitCodeError that indicates the
@@ -218,14 +218,14 @@ func (e *Env) Execute(plugin Plugin, args []string) ExitCode {
 	e.log.Trace("Execute()")
 
 	if e.log.Level == logrus.DebugLevel {
-		wd, err := os.Getwd()
+		cwd, err := os.Getwd()
 		if err != nil {
 			e.log.Error("failed to retrieve current working directory")
 
 			return ErrExitCodeEnvVarFailure
 		}
 
-		e.log.Debug("Current working directory: ", wd)
+		e.log.Debug("Current working directory: ", cwd)
 
 		for i, v := range args {
 			e.log.Debugf("Argument (%d): %s", i, v)
@@ -290,7 +290,7 @@ func (p *plugin) HelpOverview() ExitCode {
 	return ErrExitCodeNotImplemented
 }
 
-func verifyNoArguments(fn PluginFunc, args []string) PluginFunc {
+func verifyNoArguments(fn PluginFunc, args []string) PluginFunc { //nolint:varnamelen
 	return func() ExitCode {
 		if len(args) > 1 {
 			return ErrExitCodeFoundArguments
