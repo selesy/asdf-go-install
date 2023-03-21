@@ -1,15 +1,15 @@
 package agi_test
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/selesy/asdf-go-install/internal/agi"
 	"github.com/stretchr/testify/require"
 )
 
+//nolint:paralleltest
 func TestConfig(t *testing.T) {
-	path := filepath.Join(t.TempDir())
+	path := t.TempDir()
 	exp := &agi.Config{
 		Name:    "example",
 		Package: "https://example.com/path",
@@ -20,7 +20,7 @@ func TestConfig(t *testing.T) {
 	})
 
 	t.Run("Read", func(t *testing.T) {
-		act := &agi.Config{}
+		act := new(agi.Config)
 
 		require.NoError(t, act.Read(path))
 	})
