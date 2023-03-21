@@ -12,6 +12,8 @@ const (
 	ConfigFilePermissions = 0o775
 )
 
+// Config provides the name and package information needed to install a
+// Go project's commamd as an executable.
 type Config struct {
 	Name    string `json:"name"`
 	Package string `json:"package"`
@@ -24,8 +26,11 @@ var (
 	ErrFailedToWriteConfig     = errors.New("failed to write configuration file")
 )
 
+// Read retrieves an asdf-go-install configuration file from disk at the
+// specified path.
 func (c *Config) Read(path string) error {
 	configPath := filepath.Join(path, ConfigFilename)
+
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return errors.Join(ErrFailedToReadConfig, err)
@@ -38,6 +43,8 @@ func (c *Config) Read(path string) error {
 	return nil
 }
 
+// Write stores an asdf-go-install configuration file to disk at the
+// specified path.
 func (c *Config) Write(path string) error {
 	data, err := json.Marshal(c)
 	if err != nil {
