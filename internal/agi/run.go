@@ -103,12 +103,15 @@ const (
 func (e ExitCodeError) Error() string {
 	var msg string
 
-	msg, ok := map[ExitCode]string{ //nolint:varnamelen
-		ErrExitCodeEnvVarFailure:  MsgErrEnvVarParseFailed,
-		ErrExitCodeFoundArguments: MsgErrFoundArgument,
-		ErrExitCodeNoCommand:      MsgErrNoCommand,
-		ErrExitCodeNotImplemented: MsgErrNotImplemented,
-		ErrExitCodeUnknownCommand: MsgErrUnknownCommand,
+	msg, ok := map[ExitCodeError]string{ //nolint:varnamelen
+		ErrExitCodeBadArgumentCount: MsgErrBadArgumentCount,
+		ErrExitCodeCommandFailure:   MsgErrCommandFailure,
+		ErrExitCodeEnvVarFailure:    MsgErrEnvVarParseFailed,
+		ErrExitCodeFoundArguments:   MsgErrFoundArgument,
+		ErrExitCodeInvalidArgument:  MsgErrInvalidArgument,
+		ErrExitCodeNoCommand:        MsgErrNoCommand,
+		ErrExitCodeNotImplemented:   MsgErrNotImplemented,
+		ErrExitCodeUnknownCommand:   MsgErrUnknownCommand,
 	}[e]
 	if !ok {
 		panic(ErrPanicUnknownError)
@@ -272,13 +275,16 @@ type plugin struct {
 	env *Env
 }
 
+func NewPlugin(env *Env) *plugin { //nolint:golint
+	return &plugin{
+		env: env,
+	}
+}
+
 // Main executes the default plugin using the default execution context.
 func Main() int {
 	env := NewEnv()
-
-	plugin := &plugin{
-		env: env,
-	}
+	plugin := NewPlugin(env)
 
 	return int(env.Execute(plugin, os.Args))
 }
