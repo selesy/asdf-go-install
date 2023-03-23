@@ -15,7 +15,7 @@ func (p *plugin) Add(args []string) ExitCode {
 	)
 
 	if len(args) != expectedArgsCount {
-		p.env.log.Error("Expected 2 arguments")
+		p.env.log.Error("the Add() command expects 3 arguments")
 
 		return ErrExitCodeBadArgumentCount
 	}
@@ -47,20 +47,20 @@ func (p *plugin) Add(args []string) ExitCode {
 	pluginDir := filepath.Join(asdfDir, "plugins")
 
 	installDir := filepath.Join(pluginDir, name)
-	if err := p.makeDirectoryIfNotExists(installDir); err != nil {
+	if err := p.MakeDirectoryIfNotExists(installDir); err != nil {
 		p.env.log.Error(err)
 
 		return ErrExitCodeCommandFailure
 	}
 
 	binDir := filepath.Join(installDir, "bin")
-	if err := p.makeDirectoryIfNotExists(binDir); err != nil {
+	if err := p.MakeDirectoryIfNotExists(binDir); err != nil {
 		p.env.log.Error(err)
 
 		return ErrExitCodeCommandFailure
 	}
 
-	// TODO: Write symlinks for list-all, download, install and help
+	// Write symlinks for list-all, download, install and help
 	trgtDir := strings.TrimSuffix(cmd, filepath.Join("lib", "commands", "command-add.bash"))
 	if err := p.makeSymLinks(
 		trgtDir,
@@ -73,37 +73,36 @@ func (p *plugin) Add(args []string) ExitCode {
 		return ErrExitCodeCommandFailure
 	}
 
-	// TODO: Write README/help file
-
-	// TODO: Write config file.
+	// Write config file.
 	cfg := &Config{
 		Name:    name,
 		Package: pkg,
 	}
 
-	err := cfg.Write(installDir)
-	if err != nil {
+	if err := cfg.Write(installDir); err != nil {
 		return ErrExitCodeCommandFailure
 	}
 
 	p.env.log.Debug("Wrote config file to ", filepath.Join(installDir, ConfigFilename))
 
+	// TODO: Write README/help file
+
 	return ExitCodeOK
 }
 
-func (p *plugin) makeDirectoryIfNotExists(name string) error {
+func (p *plugin) MakeDirectoryIfNotExists(name string) error {
 	const directoryPermissions = 0o775
 
-	fi, err := os.Stat(name)
+	info, err := os.Stat(name)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("%w - %w - %s", ErrExitCodeCommandFailure, err, name)
 	}
 
-	if err == nil && !fi.IsDir() {
+	if err == nil && !info.IsDir() {
 		return fmt.Errorf("%w - exists but is not a directory - %s", ErrExitCodeCommandFailure, name)
 	}
 
-	if err == nil && fi.IsDir() {
+	if err == nil && info.IsDir() {
 		p.env.log.Debug("directory already exists - skipping ", name)
 
 		return nil
@@ -137,7 +136,7 @@ func (p *plugin) makeSymLinks(trgtDir string, links ...string) error {
 		}
 
 		if check != trgt {
-			return fmt.Errorf("%w - existing symlink already exists but does not equal target - %s != %s", ErrExitCodeCommandFailure, link, trgt)
+			return fmt.Errorf("%w - symlink already exists but does not equal target - %s != %s", ErrExitCodeCommandFailure, link, trgt)
 		}
 
 		p.env.log.Info("symlink already exists - skipping ", trgt)
