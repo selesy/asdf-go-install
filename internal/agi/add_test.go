@@ -122,6 +122,40 @@ func TestPlugin_MkDir(t *testing.T) {
 		env, rec := newTestEnv(t)
 		plugin := agi.NewPlugin(env)
 		require.NoError(t, plugin.MkDir(path))
-		rec.show(t, "succeeds_if_path_exists_and_is_directorydirectory_is_created")
+		rec.show(t, "succeeds_if_directory_is_created")
+	})
+}
+
+func TestPlugin_Symlinks(t *testing.T) {
+	t.Parallel()
+
+	t.Run("errors if path exists but is not target", func(t *testing.T) {
+		t.Parallel()
+
+		env, rec := newTestEnv(t)
+		plugin := agi.NewPlugin(env)
+		exp := "failure while executing plugin command - symlink already exists but does not equal target - ./testdata/symlink_to_target_false != testdata/bin/asdf-go-install"
+		require.EqualError(t, plugin.Symlinks("./testdata", "./testdata/symlink_to_target_false"), exp)
+		rec.show(t, "errors_if_path_exists_but_is_not_target")
+	})
+
+	t.Run("succeeds if symlink already exists to correct target", func(t *testing.T) {
+		t.Parallel()
+
+		env, rec := newTestEnv(t)
+		plugin := agi.NewPlugin(env)
+		require.NoError(t, plugin.Symlinks("./testdata", "./testdata/symlink_to_target_true"))
+		rec.show(t, "succeeds_if_symlink_exists_to_correct_target")
+	})
+
+	t.Run("succeeds if symlink is created", func(t *testing.T) {
+		t.Parallel()
+
+		path := filepath.Join(tempDir(t, "succeeds_if_symlink_is_created"), "created_symlink")
+
+		env, rec := newTestEnv(t)
+		plugin := agi.NewPlugin(env)
+		require.NoError(t, plugin.Symlinks("./testdata", path))
+		rec.show(t, "succeeds_if_symlnk_is_created")
 	})
 }
