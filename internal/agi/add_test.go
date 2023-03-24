@@ -9,7 +9,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func tempDir(t *testing.T, name string) string {
+	t.Helper()
+
+	const directoryPermissions = 0o775
+
+	path := filepath.Join(os.TempDir(), name)
+	require.NoError(t, os.Mkdir(path, directoryPermissions))
+
+	t.Cleanup(func() {
+		require.NoError(t, os.RemoveAll(path))
+	})
+
+	return path
+}
+
 func unsetEnvVar(t *testing.T, key string) {
+	t.Helper()
+
 	val, ok := os.LookupEnv(key)
 	if ok {
 		t.Cleanup(func() {
@@ -20,12 +37,20 @@ func unsetEnvVar(t *testing.T, key string) {
 	require.NoError(t, os.Unsetenv(key))
 }
 
+func newTestPlugin(t *testing.T) (agi.Plugin, *testRecorder) {
+	t.Helper()
+
+	env, rec := newTestEnv(t)
+	plugin := agi.NewPlugin(env)
+
+	return plugin, rec
+}
+
 func TestPlugin_Add(t *testing.T) {
 	t.Parallel()
 
 	t.Run("errors if ASDF_DIR environment variable is not set", func(t *testing.T) {
-		env, rec := newTestEnv(t)
-		plugin := agi.NewPlugin(env)
+		plugin, rec := newTestPlugin(t)
 
 		unsetEnvVar(t, "ASDF_DIR")
 
@@ -42,8 +67,7 @@ func TestPlugin_Add(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			t.Parallel()
 
-			env, rec := newTestEnv(t)
-			plugin := agi.NewPlugin(env)
+			plugin, rec := newTestPlugin(t)
 			require.EqualError(t, plugin.Add([]string{"one", "two"}), exp)
 			rec.show(t, "errors_if_there_are_less_than_three_arguments")
 		})
@@ -51,15 +75,14 @@ func TestPlugin_Add(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			t.Parallel()
 
-			env, rec := newTestEnv(t)
-			plugin := agi.NewPlugin(env)
+			plugin, rec := newTestPlugin(t)
 			require.EqualError(t, plugin.Add([]string{"one", "two", "three", "four"}), exp)
 			rec.show(t, "errors_if_there_are_more_than_three_arguments")
 		})
 	})
 }
 
-func TestPlugin_MakeDirectoryIfNotExist(t *testing.T) {
+func TestPlugin_MkDir(t *testing.T) {
 	t.Parallel()
 
 	t.Run("errors if path exists but is not a directory", func(t *testing.T) {
@@ -68,7 +91,7 @@ func TestPlugin_MakeDirectoryIfNotExist(t *testing.T) {
 		env, rec := newTestEnv(t)
 		plugin := agi.NewPlugin(env)
 		exp := "failure while executing plugin command - exists but is not a directory - testdata/make_directory_if_not_exists_file"
-		require.EqualError(t, plugin.MakeDirectoryIfNotExists("testdata/make_directory_if_not_exists_file"), exp)
+		require.EqualError(t, plugin.MkDir("testdata/make_directory_if_not_exists_file"), exp)
 		rec.show(t, "errors_if_path_exists_but_is_not_a_directory")
 	})
 
@@ -77,8 +100,8 @@ func TestPlugin_MakeDirectoryIfNotExist(t *testing.T) {
 
 		env, rec := newTestEnv(t)
 		plugin := agi.NewPlugin(env)
-		exp := "failure while executing plugin command - failed to create directory - testdata/does_not_exist/does_not_exist"
-		require.EqualError(t, plugin.MakeDirectoryIfNotExists("testdata/does_not_exist/does_not_exist"), exp)
+		exp := "failure while executing plugin command\nmkdir testdata/does_not_exist/does_not_exist: no such file or directory"
+		require.EqualError(t, plugin.MkDir("testdata/does_not_exist/does_not_exist"), exp)
 		rec.show(t, "errors_if_directory_creation_fails")
 	})
 
@@ -87,18 +110,18 @@ func TestPlugin_MakeDirectoryIfNotExist(t *testing.T) {
 
 		env, rec := newTestEnv(t)
 		plugin := agi.NewPlugin(env)
-		require.NoError(t, plugin.MakeDirectoryIfNotExists("testdata/make_directory_if_not_exists_folder"))
+		require.NoError(t, plugin.MkDir("testdata/make_directory_if_not_exists_folder"))
 		rec.show(t, "succeeds_if_path_exists_and_is_directory")
 	})
+
 	t.Run("succeeds if directory is created", func(t *testing.T) {
 		t.Parallel()
 
-		tmp := t.TempDir()
-		path := filepath.Join(tmp, "new_directory")
+		path := filepath.Join(tempDir(t, "succeeds_if_directory_is_created"), "new_directory")
 
 		env, rec := newTestEnv(t)
 		plugin := agi.NewPlugin(env)
-		require.NoError(t, plugin.MakeDirectoryIfNotExists(path))
+		require.NoError(t, plugin.MkDir(path))
 		rec.show(t, "succeeds_if_path_exists_and_is_directorydirectory_is_created")
 	})
 }

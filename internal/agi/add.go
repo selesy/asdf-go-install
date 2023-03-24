@@ -47,14 +47,14 @@ func (p *plugin) Add(args []string) ExitCode {
 	pluginDir := filepath.Join(asdfDir, "plugins")
 
 	installDir := filepath.Join(pluginDir, name)
-	if err := p.MakeDirectoryIfNotExists(installDir); err != nil {
+	if err := p.MkDir(installDir); err != nil {
 		p.env.log.Error(err)
 
 		return ErrExitCodeCommandFailure
 	}
 
 	binDir := filepath.Join(installDir, "bin")
-	if err := p.MakeDirectoryIfNotExists(binDir); err != nil {
+	if err := p.MkDir(binDir); err != nil {
 		p.env.log.Error(err)
 
 		return ErrExitCodeCommandFailure
@@ -62,7 +62,7 @@ func (p *plugin) Add(args []string) ExitCode {
 
 	// Write symlinks for list-all, download, install and help
 	trgtDir := strings.TrimSuffix(cmd, filepath.Join("lib", "commands", "command-add.bash"))
-	if err := p.makeSymLinks(
+	if err := p.Symlinks(
 		trgtDir,
 		filepath.Join(binDir, "download"),
 		filepath.Join(binDir, "install"),
@@ -90,34 +90,40 @@ func (p *plugin) Add(args []string) ExitCode {
 	return ExitCodeOK
 }
 
-func (p *plugin) MakeDirectoryIfNotExists(name string) error {
+// MkDir gently creates the directory specified by path.  No error is
+// returned if the path already exists and the path leads to a directory.
+func (p *plugin) MkDir(path string) error {
 	const directoryPermissions = 0o775
 
-	info, err := os.Stat(name)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return fmt.Errorf("%w - %w - %s", ErrExitCodeCommandFailure, err, name)
+	err := os.Mkdir(path, directoryPermissions)
+	if err != nil && !errors.Is(err, os.ErrExist) {
+		return errors.Join(ErrExitCodeCommandFailure, err)
 	}
 
-	if err == nil && !info.IsDir() {
-		return fmt.Errorf("%w - exists but is not a directory - %s", ErrExitCodeCommandFailure, name)
-	}
-
-	if err == nil && info.IsDir() {
-		p.env.log.Debug("directory already exists - skipping ", name)
+	if err == nil {
+		p.env.log.Info("Created directory: ", path)
 
 		return nil
 	}
 
-	if err := os.Mkdir(name, directoryPermissions); err != nil {
-		return fmt.Errorf("%w - failed to create directory - %s", ErrExitCodeCommandFailure, name)
+	info, err := os.Stat(path)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("%w - %w - %s", ErrExitCodeCommandFailure, err, path)
 	}
 
-	p.env.log.Debugf("created directory - %s", name)
+	if err == nil && !info.IsDir() {
+		return fmt.Errorf("%w - exists but is not a directory - %s", ErrExitCodeCommandFailure, path)
+	}
+
+	p.env.log.Debug("directory already exists - skipping ", path)
 
 	return nil
 }
 
-func (p *plugin) makeSymLinks(trgtDir string, links ...string) error {
+// Symlinks gently creates one or more symbolic links all pointing to
+// the same target.  If the path already exists and is a symlink to
+// the specified target, no error is returned.
+func (p *plugin) Symlinks(trgtDir string, links ...string) error {
 	trgt := filepath.Join(trgtDir, "bin", "asdf-go-install")
 
 	for _, link := range links {
@@ -128,6 +134,8 @@ func (p *plugin) makeSymLinks(trgtDir string, links ...string) error {
 
 		if err == nil {
 			p.env.log.Info("created symlink ", link)
+
+			return nil
 		}
 
 		check, err := filepath.EvalSymlinks(link)
