@@ -1,0 +1,7 @@
+time=1970-01-01T00:00:00.000Z level=DEBUG msg="Debug should print"
+time=1970-01-01T00:00:01.000Z level=INFO msg="Info should print"
+time=1970-01-01T00:00:02.000Z level=WARN msg="Warn should print"
+time=1970-01-01T00:00:03.000Z level=ERROR msg="Error should print"
+time=1970-01-01T00:00:04.000Z level=INFO msg="WithAttrs attributes should work" k1=v1 k2=v2
+time=1970-01-01T00:00:05.000Z level=INFO msg="WithGroup should add a prefix to attributes" k1=v1 k2=v2 grp.k3=v3
+time=1970-01-01T00:00:06.000Z level=INFO msg="WithGroup and WithAttrs" k1=v1 k2=v2 grp.k4=v4 grp.k5=v5
