@@ -7,9 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/selesy/asdf-go-install/internal/logger"
 	"github.com/stretchr/testify/require"
 	"gotest.tools/v3/golden"
+
+	"github.com/selesy/asdf-go-install/internal/logger"
 )
 
 func TestCachingHandler(t *testing.T) {

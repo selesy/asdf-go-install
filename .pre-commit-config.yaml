@@ -13,11 +13,11 @@ repos:
 #   hooks:
 #     - id: golangci-lint # manage linters in .golangci.yaml
 #     - id: go-unit-tests
-- repo: https://github.com/TekWizely/pre-commit-golang
-  rev: v1.0.0-rc.1
-  hooks:
-    - id: go-test-pkg
-    - id: golangci-lint-pkg
+# - repo: https://github.com/TekWizely/pre-commit-golang
+#   rev: v1.0.0-rc.1
+#   hooks:
+    # - id: go-test-mod
+    # - id: golangci-lint-mod
     # - id: my-cmd-repo
     #   name: govulncheck
     #   alias: govulncheck

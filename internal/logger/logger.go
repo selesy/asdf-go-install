@@ -1,3 +1,5 @@
+// Package logger provides a caching slog.Handler for use before the
+// logging system is fully configured.
 package logger
 
 import (
