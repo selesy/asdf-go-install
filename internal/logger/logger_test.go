@@ -25,12 +25,9 @@ func TestCachingHandler(t *testing.T) {
 		Level: slog.LevelDebug,
 	})
 
-	h.Transfer(context.Background(), log2)
+	require.NoError(t, h.Transfer(context.Background(), log2))
 
 	golden.Assert(t, buf.String(), "test_logger.log")
-
-	// t.Log(buf.String())
-	// t.Fail()
 }
 
 func TestLogger(t *testing.T) {
