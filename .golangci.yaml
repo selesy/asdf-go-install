@@ -18,6 +18,7 @@ linters:
     - gosimple
     - govet
     - ineffassign
+    - misspell
     - staticcheck
     - stylecheck
     - unused
@@ -25,6 +26,8 @@ linters:
 linters-settings:
   goimports:
     local-prefixes: github.com/selesy/asdf-go-install
+  misspell:
+    locale: US
 
 issues:
   exclude-use-default: false
