@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
+
 	"github.com/selesy/asdf-go-install/internal/config"
 )
 
@@ -43,7 +44,7 @@ var pseudoVersionRegexp = regexp.MustCompile(PseudoVersionRegexp)
 // [module version numbering]: https://go.dev/doc/modules/version-numbers
 // [semantic version]: https://semver.org/
 func NewVersion(v string) (*semver.Version, error) {
-	// A Go versin requires the leading
+	// A Go version requires the leading
 	if !strings.HasPrefix(v, GoVersionPrefix) {
 		return nil, fmt.Errorf("%w: parsed %s", ErrMissingLeadingV, v)
 	}
@@ -84,7 +85,7 @@ func IsRelease(v *semver.Version) bool {
 	return !IsPrerelease(v)
 }
 
-// Stores a sorted collection of Go module version numbers.
+// Collection stores a sorted collection of Go module version numbers.
 type Collection struct {
 	col semver.Collection
 }
@@ -132,7 +133,7 @@ func (c *Collection) Len() int {
 }
 
 // String returns a space-delimited string representation of the Go
-// module version Collection starting with the lowest verion ending with
+// module version Collection starting with the lowest version ending with
 // the most recent version.
 func (c *Collection) String() string {
 	var vers = make([]string, len(c.col))

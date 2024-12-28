@@ -4,9 +4,10 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/selesy/asdf-go-install/internal/gover"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/selesy/asdf-go-install/internal/gover"
 )
 
 func TestNewVersion(t *testing.T) {
@@ -99,10 +100,10 @@ func TestSortCollection(t *testing.T) {
 	v0_0_0_20170915032832_14c0d48ead0c := mustNew("v0.0.0-20170915032832-14c0d48ead0c")
 	v1_2_3 := mustNew("v1.2.3")
 	v1_2_3_20170915032832_14c0d48ead0c := mustNew("v1.2.3-20170915032832-14c0d48ead0c")
-	v1_2_1_pre_3 := mustNew("v1.2.1-pre.3")
-	v1_2_1_pre_1 := mustNew("v1.2.1-pre.1")
+	v1_2_1pre3 := mustNew("v1.2.1-pre.3")
+	v1_2_1pre1 := mustNew("v1.2.1-pre.1")
 	v1_2_1 := mustNew("v1.2.1")
-	v1_2_1_pre_2 := mustNew("v1.2.1-pre.2")
+	v1_2_1pre2 := mustNew("v1.2.1-pre.2")
 	v5_6_7_20170915032832_14c0d48ead0c := mustNew("v5.6.7-20170915032832-14c0d48ead0c")
 	v3_4_5 := mustNew("v3.4.5")
 
@@ -112,10 +113,10 @@ func TestSortCollection(t *testing.T) {
 		v0_0_0_20170915032832_14c0d48ead0c,
 		v1_2_3,
 		v1_2_3_20170915032832_14c0d48ead0c,
-		v1_2_1_pre_3,
-		v1_2_1_pre_1,
+		v1_2_1pre3,
+		v1_2_1pre1,
 		v1_2_1,
-		v1_2_1_pre_2,
+		v1_2_1pre2,
 		v5_6_7_20170915032832_14c0d48ead0c,
 		v3_4_5,
 	)
@@ -127,9 +128,9 @@ func TestSortCollection(t *testing.T) {
 
 		exp := []*semver.Version{
 			v0_0_0_20170915032832_14c0d48ead0c,
-			v1_2_1_pre_1,
-			v1_2_1_pre_2,
-			v1_2_1_pre_3,
+			v1_2_1pre1,
+			v1_2_1pre2,
+			v1_2_1pre3,
 			v1_2_1,
 			v1_2_3_20170915032832_14c0d48ead0c,
 			v1_2_3,
@@ -164,9 +165,9 @@ func TestSortCollection(t *testing.T) {
 		col := gover.NewCollection(
 			v0_0_0_20170915032832_14c0d48ead0c,
 			v1_2_3_20170915032832_14c0d48ead0c,
-			v1_2_1_pre_3,
-			v1_2_1_pre_1,
-			v1_2_1_pre_2,
+			v1_2_1pre3,
+			v1_2_1pre1,
+			v1_2_1pre2,
 			v5_6_7_20170915032832_14c0d48ead0c,
 		)
 
