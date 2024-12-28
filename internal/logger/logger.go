@@ -64,6 +64,12 @@ func (h *CachingHandler) Handle(ctx context.Context, rec slog.Record) error {
 
 // WithAttrs implements slog.Handler.
 func (h *CachingHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	// The existing handler's groups need to be prepended to the incoming
+	// attributes' keys.
+	for i, attr := range attrs {
+		attrs[i].Key = strings.Join(append(h.grps, attr.Key), ".")
+	}
+
 	// We have to provide a pointer to the parent Handler's records, but
 	// an updated copy of the parent's attributes and an unchanged copy
 	// of the parent's groups.
