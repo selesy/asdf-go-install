@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/v2"
 	"github.com/lmittmann/tint"
 
 	"github.com/selesy/asdf-go-install/internal/config"
