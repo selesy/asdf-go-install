@@ -1,0 +1,12 @@
+{
+    "manifestVersion": "v1",
+    "manifestPayload": {
+        "pluginName": "go-enum",
+        "packageName": "github.com/abice/go-enum",
+        "gitRepository": "https://github.com/abice/go-enum.git",
+        "gitReference": {
+            "name": "v0.6.0",
+            "hash": "919e61c0174b91303753ee3898569a01abb32c97"
+        }
+    }
+}
