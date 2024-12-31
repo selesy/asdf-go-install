@@ -1,16 +1,15 @@
 package logger_test
 
 import (
-	"bytes"
 	"context"
 	"log/slog"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 	"gotest.tools/v3/golden"
 
 	"github.com/selesy/asdf-go-install/internal/logger"
+	"github.com/selesy/asdf-go-install/internal/logger/loggertest"
 )
 
 func TestCachingHandler(t *testing.T) {
@@ -21,7 +20,7 @@ func TestCachingHandler(t *testing.T) {
 	log1 := slog.New(h)
 	entries(t, log1)
 
-	log2, buf := NewLogger(t, &slog.HandlerOptions{
+	log2, buf := loggertest.New(t, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	})
 
@@ -33,7 +32,7 @@ func TestCachingHandler(t *testing.T) {
 func TestLogger(t *testing.T) {
 	t.Parallel()
 
-	log, buf := NewLogger(t, &slog.HandlerOptions{
+	log, buf := loggertest.New(t, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	})
 
@@ -58,51 +57,4 @@ func entries(t *testing.T, log *slog.Logger) {
 
 	log = log.With(slog.String("k4", "v4"))
 	log.Info("WithGroup and WithAttrs", slog.String("k5", "v5"))
-}
-
-func NewLogger(t *testing.T, opts *slog.HandlerOptions) (*slog.Logger, *bytes.Buffer) {
-	t.Helper()
-
-	buf := &bytes.Buffer{}
-
-	ts, err := time.Parse(time.RFC3339, "1970-01-01T00:00:00Z")
-	require.NoError(t, err)
-
-	return slog.New(&handler{
-		h:  slog.NewTextHandler(buf, opts),
-		ts: &ts,
-	}), buf
-}
-
-var _ slog.Handler = (*handler)(nil)
-
-type handler struct {
-	h  slog.Handler
-	ts *time.Time
-}
-
-func (h *handler) Enabled(ctx context.Context, lvl slog.Level) bool {
-	return true
-}
-
-func (h *handler) Handle(ctx context.Context, rec slog.Record) error {
-	rec.Time = *h.ts
-	err := h.h.Handle(ctx, rec)
-	*h.ts = h.ts.Add(time.Second)
-
-	return err
-}
-
-func (h *handler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return &handler{
-		h:  h.h.WithAttrs(attrs),
-		ts: h.ts,
-	}
-}
-
-func (h *handler) WithGroup(name string) slog.Handler {
-	return &handler{
-		h:  h.h.WithGroup(name),
-		ts: h.ts,
-	}
 }
