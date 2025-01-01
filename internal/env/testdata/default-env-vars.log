@@ -1,0 +1,18 @@
+time=1970-01-01T00:00:00.000Z level=DEBUG msg="candidate environment variable" env.key=ASDF_DIR env.value=/home/user/.asdf
+time=1970-01-01T00:00:01.000Z level=DEBUG msg="candidate environment variable" env.key=ASDF_DATA_DIR env.value=/home/user/.asdf
+time=1970-01-01T00:00:02.000Z level=DEBUG msg="candidate environment variable" env.key=ASDF_CONFIG_FILE env.value=/home/user/.asdfrc
+time=1970-01-01T00:00:03.000Z level=DEBUG msg="candidate environment variable" env.key=ASDF_DEFAULT_TOOL_VERSIONS_FILENAME env.value=.tool-versions
+time=1970-01-01T00:00:04.000Z level=DEBUG msg="Resolved environment variable" env.Dir=/home/user/.asdf
+time=1970-01-01T00:00:05.000Z level=DEBUG msg="Resolved environment variable" env.ConfigFile=/home/user/.asdfrc
+time=1970-01-01T00:00:06.000Z level=DEBUG msg="Resolved environment variable" env.DataDir=/home/user/.asdf
+time=1970-01-01T00:00:07.000Z level=DEBUG msg="Resolved environment variable" env.DefaultToolVersionsFilename=.tool-versions
+time=1970-01-01T00:00:08.000Z level=DEBUG msg="Resolved environment variable" env.InstallType=0
+time=1970-01-01T00:00:09.000Z level=DEBUG msg="Resolved environment variable" env.InstallVersion=<nil>
+time=1970-01-01T00:00:10.000Z level=DEBUG msg="Resolved environment variable" env.InstallPath=""
+time=1970-01-01T00:00:11.000Z level=DEBUG msg="Resolved environment variable" env.Concurrency=0
+time=1970-01-01T00:00:12.000Z level=DEBUG msg="Resolved environment variable" env.DownloadPath=""
+time=1970-01-01T00:00:13.000Z level=DEBUG msg="Resolved environment variable" env.PluginPath=""
+time=1970-01-01T00:00:14.000Z level=DEBUG msg="Resolved environment variable" env.PluginSourceURL=<nil>
+time=1970-01-01T00:00:15.000Z level=DEBUG msg="Resolved environment variable" env.PluginPrevRef=""
+time=1970-01-01T00:00:16.000Z level=DEBUG msg="Resolved environment variable" env.PluginPostRef=""
+time=1970-01-01T00:00:17.000Z level=DEBUG msg="Resolved environment variable" env.CmdFile=""
